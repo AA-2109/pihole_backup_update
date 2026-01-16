@@ -1,33 +1,33 @@
-import requests
-from dotenv import load_dotenv
+from exceptions import PiHoleError
 from pihole_cls import PiHole
-import os, json
+from validation import set_config_params
+import logging
 
-
-load_dotenv()
+logger = logging.getLogger(__name__)
+logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+                    filename="backup_upgrade.log",
+                    level=logging.INFO,
+                    datefmt="[%Y-%m-%d %H:%M:%S]")
 
 def main():
-    password = os.getenv("PASSWORD")
-    if not password:
-        raise RuntimeError("PASSWORD not set")
-
-    ip_list = json.loads(os.getenv("IP_LIST", "[]"))
-    if not ip_list:
-        raise RuntimeError("IP_LIST not set")
-
-    path_to_backup = os.getenv("PATH_TO_BACKUP") or "./backup"
-
+    password, ip_list, path_to_backup = set_config_params()
+    pi_hole = None
     for host in ip_list:
         try:
+            logger.info("Starting Upgrade and Backup routines for %s", host)
             pi_hole = PiHole(host, password)
             pi_hole.get_backup(path_to_backup)
             pi_hole.update_gravity()
-        except requests.exceptions.ConnectionError as e:
-            print(f"Connection error, check if your Pi-Hole is running and accessible\n Error: {e}")
-        else:
-            print(f"[{pi_hole.host}] Backup and Gravity update - successful")
+            logger.info("[%s] Backup and Gravity update - successful", host)
+        except PiHoleError:
+            logger.exception("[%s] Backup and Gravity update - failed", host)
+
         finally:
-            pi_hole.logout()
+            try:
+                pi_hole.logout()
+            except PiHoleError:
+                logger.exception("Logout failed for %s", host)
+
 
 if __name__ == "__main__":
     main()

@@ -2,10 +2,13 @@ from exceptions import PiHoleError
 from pihole_cls import PiHole
 from validation import set_config_params
 import logging
+import os
 
 logger = logging.getLogger(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(BASE_DIR, "backup_upgrade.log")
 logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-                    filename="backup_upgrade.log",
+                    filename=LOG_FILE,
                     level=logging.INFO,
                     datefmt="[%Y-%m-%d %H:%M:%S]")
 

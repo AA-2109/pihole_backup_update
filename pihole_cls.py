@@ -10,7 +10,7 @@ class PiHole:
         self.host = host
         self.session_id = PiHole.login_with_password(host, password)
         self.encoded_session_id = quote(self.session_id)
-        self.api_url = f"http://{self.host}/api"
+        self.api_url = f"https://{self.host}/api"
         self.logger = logging.getLogger(__name__)
 
     def logout(self) -> str:
@@ -80,7 +80,7 @@ class PiHole:
 
     @staticmethod
     def login_with_password(host, password):
-        auth_url = f"http://{host}/api/auth"
+        auth_url = f"https://{host}/api/auth"
         payload = {"password": password}
 
         try:

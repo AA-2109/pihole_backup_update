@@ -1,3 +1,4 @@
+import pathlib
 import requests
 import datetime
 from urllib.parse import quote
@@ -38,7 +39,7 @@ class PiHole:
         response = self.send_request("GET", config_endpoint, verify=False)
         return response
 
-    def get_backup(self, path_to_backup: str) -> None:
+    def get_backup(self, path_to_backup: pathlib.Path) -> None:
         teleport_endpoint = f"{self.api_url}/teleporter?sid={self.encoded_session_id}"
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_file = os.path.join(path_to_backup, f"{self.host}_{timestamp}_backup.zip")
@@ -48,6 +49,11 @@ class PiHole:
             response.raise_for_status()
         except requests.RequestException as e:
             raise PiHoleBackupError("Failed to download backup") from e
+
+        try:
+            os.makedirs(path_to_backup, exist_ok=True)
+        except OSError as e:
+            raise PiHoleBackupError(f"Cannot create directory: {path_to_backup}") from e
 
         try:
             with open(backup_file, "wb") as f:

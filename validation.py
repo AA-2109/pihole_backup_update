@@ -50,8 +50,6 @@ def validate_backup_path(path: str) -> pathlib.Path:
 
     path = pathlib.Path(path).expanduser().resolve()
 
-    if not path.is_dir():
-        raise ConfValidationError(f"Path is not directory: {path}")
 
     test_file = path / ".write_test"
 

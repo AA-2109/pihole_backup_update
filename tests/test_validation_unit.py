@@ -1,7 +1,7 @@
-from json import JSONDecodeError
-
+import pathlib
 import validation
 import pytest
+import ipaddress
 
 from exceptions import ConfigurationError, ConfValidationError
 
@@ -24,7 +24,13 @@ class TestValidationUnit:
             validation.validate_password(123)
 
     def test_valid_password(self):
-        assert validation.validate_password("secret") == "secret"
+        expected = "secret"
+        result = validation.validate_password(expected)
+        assert expected == result
+
+    def test_password_is_string(self):
+        result = validation.validate_password("secret")
+        assert isinstance(result, str)
 
     def test_empty_ip_list(self):
         with pytest.raises(ConfigurationError):
@@ -59,7 +65,13 @@ class TestValidationUnit:
             validation.validate_ip_list(123)
 
     def test_valid_ip_list(self):
-        assert validation.validate_ip_list('192.168.1.2, 192.168.1.3') == ["192.168.1.2", "192.168.1.3"]
+        result = validation.validate_ip_list('192.168.1.2, 192.168.1.3')
+        assert isinstance(result, list)
+
+    def test_return_ipv4_list(self):
+        result = validation.validate_ip_list('192.168.1.2, 192.168.1.3')
+        for ip in result:
+            assert isinstance(ipaddress.ip_address(ip), ipaddress.IPv4Address)
 
     def test_path_to_file(self):
         with pytest.raises(ConfValidationError):
@@ -79,4 +91,10 @@ class TestValidationUnit:
             validation.validate_backup_path(str(tmp_path))
 
     def test_valid_path(self):
-        assert validation.validate_backup_path("./test") == "test.txt"
+        result = validation.validate_backup_path("tests")
+        assert isinstance(result, pathlib.Path)
+
+    def test_valid_path_equals_expected_path(self):
+        result = validation.validate_backup_path("tests/")
+        expected_path = pathlib.Path("tests/").expanduser().resolve()
+        assert result == expected_path

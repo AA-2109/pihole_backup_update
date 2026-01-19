@@ -2,6 +2,7 @@ import pathlib
 import validation
 import pytest
 import ipaddress
+import os
 
 from exceptions import ConfigurationError, ConfValidationError
 
@@ -85,16 +86,17 @@ class TestValidationUnit:
         with pytest.raises(AttributeError):
             validation.validate_backup_path(None)
 
+    @pytest.mark.skipif(os.name == 'nt', reason="Unix specific test")
     def test_path_no_write_perm(self, tmp_path):
         tmp_path.chmod(0o555)
         with pytest.raises(ConfValidationError):
             validation.validate_backup_path(str(tmp_path))
 
     def test_valid_path(self):
-        result = validation.validate_backup_path("tests")
+        result = validation.validate_backup_path(".")
         assert isinstance(result, pathlib.Path)
 
     def test_valid_path_equals_expected_path(self):
-        result = validation.validate_backup_path("tests/")
-        expected_path = pathlib.Path("tests/").expanduser().resolve()
+        result = validation.validate_backup_path("./")
+        expected_path = pathlib.Path("./").expanduser().resolve()
         assert result == expected_path

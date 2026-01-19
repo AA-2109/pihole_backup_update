@@ -91,7 +91,7 @@ class PiHole:
 
         try:
             response = PiHole.send_request("POST", auth_url, json=payload, verify=False)
-        except requests.RequestException:
+        except PiHoleAPIError:
             raise PiHoleAPIError(f"Failed to login to {auth_url}")
 
         try:

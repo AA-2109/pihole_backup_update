@@ -1,18 +1,21 @@
-import pathlib
+from pathlib import Path
 import requests
 import datetime
 from urllib.parse import quote
+
+from requests import Response
 
 from exceptions import *
 import os, logging
 
 class PiHole:
-    def __init__(self, host, password):
+    def __init__(self, host, password, path_to_backup: Path):
         self.host = host
         self.session_id = PiHole.login_with_password(host, password)
         self.encoded_session_id = quote(self.session_id)
         self.api_url = f"https://{self.host}/api"
         self.logger = logging.getLogger(__name__)
+        self.path_to_backup = path_to_backup
 
     def logout(self) -> str:
         auth_url = f"{self.api_url}/auth?sid={self.encoded_session_id}"
@@ -39,10 +42,10 @@ class PiHole:
         response = self.send_request("GET", config_endpoint, verify=False)
         return response
 
-    def get_backup(self, path_to_backup: pathlib.Path) -> None:
+    def get_backup(self) -> None:
         teleport_endpoint = f"{self.api_url}/teleporter?sid={self.encoded_session_id}"
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_file = os.path.join(path_to_backup, f"{self.host}_{timestamp}_backup.zip")
+        backup_file = (self.path_to_backup / f"{self.host}_{timestamp}_backup.zip")
 
         try:
             response = requests.get(teleport_endpoint, verify=False, timeout=100)
@@ -50,16 +53,8 @@ class PiHole:
         except requests.RequestException as e:
             raise PiHoleBackupError("Failed to download backup") from e
 
-        try:
-            os.makedirs(path_to_backup, exist_ok=True)
-        except OSError as e:
-            raise PiHoleBackupError(f"Cannot create directory: {path_to_backup}") from e
-
-        try:
-            with open(backup_file, "wb") as f:
-                f.write(response.content)
-        except OSError as e:
-            raise PiHoleBackupError(f"Failed to save backup to {path_to_backup}") from e
+        PiHole.create_directory(self.path_to_backup)
+        PiHole.save_zip_archive(backup_file, response)
 
 
     def update_gravity(self) -> None:
@@ -98,3 +93,21 @@ class PiHole:
             return response["session"]["sid"]
         except (KeyError, TypeError) as e:
             raise PiHoleAPIError("Login response missing session SID") from e
+
+    @staticmethod
+    def create_directory(path_to_backup: Path):
+        try:
+            os.makedirs(path_to_backup, exist_ok=True)
+
+        except OSError as e:
+            raise PiHoleBackupError(f"Cannot create directory: {path_to_backup}") from e
+
+
+    @staticmethod
+    def save_zip_archive(backup_file_name: Path, response: Response):
+        try:
+            with open(backup_file_name, "wb") as f:
+                f.write(response.content)
+
+        except OSError as e:
+            raise PiHoleBackupError(f"Failed to save backup at {backup_file_name}") from e

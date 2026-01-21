@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import mock
 import requests
 
@@ -18,7 +19,7 @@ class TestPihole:
 
     @pytest.fixture
     def pihole(self, mock_login):
-        return PiHole("127.0.0.1", "secret")
+        return PiHole("127.0.0.1", "secret", Path("."))
 
     def test_init_sets_session_id(self, pihole):
         assert pihole.session_id == "hello World!"
@@ -88,3 +89,22 @@ class TestPihole:
             timeout=100,
         )
         mock_response.raise_for_status.assert_called_once()
+
+    @mock.patch("pihole_cls.requests.get")
+    def test_failed_backup(self, mock_request, pihole):
+        mock_request.side_effect = requests.RequestException("404")
+
+        with pytest.raises(PiHoleBackupError, match="Failed to download backup"):
+            pihole.get_backup()
+
+    @mock.patch("pihole_cls.requests.get")
+    @mock.patch("pihole_cls.os.makedirs")
+    def test_failed_to_write_backup(self, mock_makedirs, mock_get, pihole):
+        mock_response = mock.Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.content = b"fake zip content"
+        mock_get.return_value = mock_response
+        mock_makedirs.side_effect = OSError("Permission denied")
+
+        with pytest.raises(PiHoleBackupError, match=f"Cannot create directory: {pihole.path_to_backup}"):
+            pihole.get_backup()

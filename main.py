@@ -18,8 +18,8 @@ def main():
     for host in ip_list:
         try:
             logger.info("Starting Upgrade and Backup routines for %s", host)
-            pi_hole = PiHole(host, password)
-            pi_hole.get_backup(path_to_backup)
+            pi_hole = PiHole(host, password, path_to_backup)
+            pi_hole.get_backup()
             pi_hole.update_gravity()
             logger.info("[%s] Backup and Gravity update - successful", host)
         except PiHoleError:

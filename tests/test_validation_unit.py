@@ -85,7 +85,6 @@ class TestValidationUnit:
         with pytest.raises(ConfigurationError):
             validation.validate_backup_path("")
 
-
     def test_none_path_to_folder(self):
         with pytest.raises(AttributeError):
             # noinspection PyTypeChecker

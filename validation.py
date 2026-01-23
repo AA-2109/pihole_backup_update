@@ -79,5 +79,4 @@ def set_config_params() -> tuple[str, list[str], pathlib.Path]:
 
     logger.info("Configuration loaded: IP_LIST=%s, PATH_TO_BACKUP=%s",
                 valid_ip_list, valid_path_to_backup)
-
     return valid_password, valid_ip_list, valid_path_to_backup

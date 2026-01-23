@@ -61,7 +61,6 @@ class PiHole:
         PiHole.create_directory(self.path_to_backup)
         PiHole.save_zip_archive(backup_file, response)
 
-
     def update_gravity(self) -> None:
         gravity_url = f"{self.api_url}/action/gravity?sid={self.encoded_session_id}"
         try:
@@ -69,7 +68,6 @@ class PiHole:
             response.raise_for_status()
         except requests.RequestException as e:
             raise PiHoleGravityUpdateError("Failed to update gravity") from e
-
 
     @staticmethod
     def send_request(method, url, **kwargs):
@@ -84,7 +82,6 @@ class PiHole:
             return response.json()
         except ValueError as e:
             raise PiHoleAPIError(f"Invalid JSON response from {url}") from e
-
 
     @staticmethod
     def login_with_password(host, password):
@@ -101,7 +98,6 @@ class PiHole:
         except (KeyError, TypeError) as e:
             raise PiHoleAPIError("Login response missing session SID") from e
 
-
     @staticmethod
     def create_directory(path_to_backup: Path):
         try:
@@ -109,7 +105,6 @@ class PiHole:
 
         except OSError as e:
             raise PiHoleBackupError(f"Cannot create directory: {path_to_backup}") from e
-
 
     @staticmethod
     def save_zip_archive(backup_file_name: Path, response: Response):

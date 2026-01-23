@@ -19,6 +19,5 @@ class PiHoleBackupError(PiHoleError):
     """Raised when a Pi-hole teleport backup fails."""
 
 
-
 class PiHoleGravityUpdateError(PiHoleError):
     """Raised when a Pi-hole Gravity Update fails."""

@@ -3,7 +3,7 @@
 A Pi-hole maintenance script that collects Teleporter backups and updates the Gravity database.
 
 ### **Requirements:**
-* Python 3.7+ 
+* Python 3.10+ 
 
 
 ### **Setup:**

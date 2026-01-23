@@ -30,3 +30,7 @@ I use it with cron, running once per five days e.g.:
 ``0 0 */5 * * /home/user/Documents/pihole_update/.venv/bin/python main.py``
 
 Logs will be stored inside project folder under name `backup_upgrade.log`
+
+
+### Tests
+To run tests use `pytest` command.

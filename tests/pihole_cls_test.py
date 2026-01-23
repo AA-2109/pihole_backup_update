@@ -5,8 +5,7 @@ import requests
 import pytest
 from unittest.mock import patch
 from pihole_cls import PiHole
-from exceptions import (PiHoleError,
-                        PiHoleBackupError,
+from exceptions import (PiHoleBackupError,
                         PiHoleAPIError,
                         PiHoleGravityUpdateError)
 

@@ -1,8 +1,9 @@
-import pathlib
-import validation
-import pytest
-import ipaddress
 import os
+import ipaddress
+import pathlib
+import pytest
+import validation
+
 
 from exceptions import ConfigurationError, ConfValidationError
 
@@ -22,6 +23,7 @@ class TestValidationUnit:
 
     def test_attribute_error(self):
         with pytest.raises(TypeError):
+            # noinspection PyTypeChecker
             validation.validate_password(123)
 
     def test_valid_password(self):
@@ -53,16 +55,17 @@ class TestValidationUnit:
         with pytest.raises(ConfValidationError):
             validation.validate_ip_list("129., ")
 
-    def test_otside_IPV4_ip_list(self):
+    def test_outside_ipv4_ip_list(self):
         with pytest.raises(ConfValidationError):
             validation.validate_ip_list("257.257.257.257")
 
-    def test_IPV6_ip_list(self):
+    def test_ipv6_ip_list(self):
         with pytest.raises(ConfValidationError):
             validation.validate_ip_list("::1")
 
     def test_ip_list_not_str(self):
         with pytest.raises(TypeError):
+            # noinspection PyTypeChecker
             validation.validate_ip_list(123)
 
     def test_valid_ip_list(self):
@@ -82,8 +85,10 @@ class TestValidationUnit:
         with pytest.raises(ConfigurationError):
             validation.validate_backup_path("")
 
-    def test_None_path_to_folder(self):
+
+    def test_none_path_to_folder(self):
         with pytest.raises(AttributeError):
+            # noinspection PyTypeChecker
             validation.validate_backup_path(None)
 
     @pytest.mark.skipif(os.name == 'nt', reason="Unix specific test")

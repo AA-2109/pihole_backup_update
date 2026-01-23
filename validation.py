@@ -1,9 +1,9 @@
-from dotenv import load_dotenv
 import os
-from exceptions import ConfigurationError, ConfValidationError
 import logging
 import ipaddress
 import pathlib
+from dotenv import load_dotenv
+from exceptions import ConfigurationError, ConfValidationError
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -29,6 +29,7 @@ def validate_ip_list(ip_list_raw: str | None) -> list[str]:
 
     return ip_list
 
+
 def validate_password(password: str | None) -> str:
     if password is None:
         raise ConfigurationError("Password not set")
@@ -41,6 +42,7 @@ def validate_password(password: str | None) -> str:
 
     return password
 
+
 def validate_backup_path(path: str) -> pathlib.Path:
     if len(path.strip()) < 1:
         raise ConfigurationError("Path can not be empty or whitespace only")
@@ -49,7 +51,6 @@ def validate_backup_path(path: str) -> pathlib.Path:
         raise TypeError("Path must be a string")
 
     path = pathlib.Path(path).expanduser().resolve()
-
 
     test_file = path / ".write_test"
 

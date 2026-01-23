@@ -1,13 +1,18 @@
 from pathlib import Path
-import requests
 import datetime
 from urllib.parse import quote
+import os
+import logging
+import requests
+
 
 from requests import Response
+from exceptions import (PiHoleBackupError,
+                        PiHoleAPIError,
+                        PiHoleGravityUpdateError)
 
-from exceptions import *
-import os, logging
 
+# noinspection Pylint
 class PiHole:
     def __init__(self, host, password, path_to_backup: Path):
         self.host = host
@@ -19,7 +24,7 @@ class PiHole:
 
     def logout(self) -> str:
         auth_url = f"{self.api_url}/auth?sid={self.encoded_session_id}"
-        response = requests.request("DELETE", auth_url, verify=False)
+        response = requests.request("DELETE", auth_url, verify=False, timeout=100)
         return response.text
 
     def get_version(self) -> str:
@@ -45,7 +50,7 @@ class PiHole:
     def get_backup(self) -> None:
         teleport_endpoint = f"{self.api_url}/teleporter?sid={self.encoded_session_id}"
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_file = (self.path_to_backup / f"{self.host}_{timestamp}_backup.zip")
+        backup_file = self.path_to_backup / f"{self.host}_{timestamp}_backup.zip"
 
         try:
             response = requests.get(teleport_endpoint, verify=False, timeout=100)
@@ -65,11 +70,12 @@ class PiHole:
         except requests.RequestException as e:
             raise PiHoleGravityUpdateError("Failed to update gravity") from e
 
+
     @staticmethod
     def send_request(method, url, **kwargs):
 
         try:
-            response = requests.request(method, url, **kwargs)
+            response = requests.request(method, url, **kwargs, timeout=100)
             response.raise_for_status()
         except requests.RequestException as e:
             raise PiHoleAPIError(f"Failed to send request to {url}") from e
@@ -78,6 +84,7 @@ class PiHole:
             return response.json()
         except ValueError as e:
             raise PiHoleAPIError(f"Invalid JSON response from {url}") from e
+
 
     @staticmethod
     def login_with_password(host, password):
@@ -93,6 +100,7 @@ class PiHole:
             return response["session"]["sid"]
         except (KeyError, TypeError) as e:
             raise PiHoleAPIError("Login response missing session SID") from e
+
 
     @staticmethod
     def create_directory(path_to_backup: Path):

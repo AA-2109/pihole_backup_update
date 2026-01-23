@@ -1,9 +1,10 @@
+from unittest.mock import patch
 from pathlib import Path
 from unittest import mock
 import requests
 
 import pytest
-from unittest.mock import patch
+
 from pihole_cls import PiHole
 from exceptions import (PiHoleBackupError,
                         PiHoleAPIError,
@@ -55,7 +56,7 @@ class TestPihole:
             PiHole.send_request("POST", auth_url)
 
     @mock.patch("pihole_cls.requests.request")
-    def test_send_request_returns_not_JSON(self, mock_request):
+    def test_send_request_returns_not_json(self, mock_request):
         auth_url = "https://127.0.0.1/api/auth"
         mock_response = mock.Mock()
         mock_response.raise_for_status.return_value = None

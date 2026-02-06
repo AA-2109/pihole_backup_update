@@ -18,7 +18,6 @@ def main():
     pi_hole = None
     for host in ip_list:
         try:
-            logger.info("Starting Upgrade and Backup routines for %s", host)
             pi_hole = PiHole(host, password, path_to_backup)
             password = None
             pi_hole.get_backup()

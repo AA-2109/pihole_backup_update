@@ -2,7 +2,7 @@ from pathlib import Path
 import datetime
 from urllib.parse import quote
 import os
-import logging
+from logger import get_logger
 import requests
 
 
@@ -19,7 +19,7 @@ class PiHole:
         self.session_id = PiHole.login_with_password(host, password)
         self.encoded_session_id = quote(self.session_id)
         self.api_url = f"https://{self.host}/api"
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger()
         self.path_to_backup = path_to_backup
 
     def logout(self) -> str:

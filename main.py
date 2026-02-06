@@ -1,25 +1,18 @@
-import logging
-import os
 from exceptions import PiHoleError
 from pihole_cls import PiHole
 from validation import set_config_params
+from logger import get_logger
 
-logger = logging.getLogger(__name__)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(BASE_DIR, "backup_upgrade.log")
-logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-                    filename=LOG_FILE,
-                    level=logging.INFO,
-                    datefmt="[%Y-%m-%d %H:%M:%S]")
 
 
 def main():
     password, ip_list, path_to_backup = set_config_params()
     pi_hole = None
+    logger = get_logger()
     for host in ip_list:
         try:
+            logger.info("Starting Upgrade and Backup routines for %s", host)
             pi_hole = PiHole(host, password, path_to_backup)
-            password = None
             pi_hole.get_backup()
             pi_hole.update_gravity()
             logger.info("[%s] Backup and Gravity update - successful", host)
@@ -35,3 +28,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

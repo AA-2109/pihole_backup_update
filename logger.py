@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_logger(BASE_DIR=None):
+def get_logger():
     logger = logging.getLogger(__name__)
     BASE_DIR = os.getenv("BASE_DIR", os.getcwd())
     LOG_FILE = os.path.join(BASE_DIR, "backup_upgrade.log")
